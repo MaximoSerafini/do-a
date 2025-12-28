@@ -254,6 +254,25 @@ export default function HomePage() {
                     </div>
                   ))}
                   <div className="pt-6 border-t-2 border-primary/20 space-y-4">
+                    {/* Sugerencia de bebida si no hay bebidas en el carrito */}
+                    {!cart.some(item => item.size === "Bebida") && (
+                      <div className="bg-secondary/30 border border-secondary rounded-xl p-4 flex items-center gap-3">
+                        <div className="text-3xl">🥤</div>
+                        <div className="flex-1">
+                          <p className="font-medium text-sm text-foreground">¿No querés agregar una bebida?</p>
+                          <p className="text-xs text-muted-foreground">Completá tu pedido con una bebida fría</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => setIsCartOpen(false)}
+                          asChild
+                        >
+                          <a href="#bebidas">Ver bebidas</a>
+                        </Button>
+                      </div>
+                    )}
+
                     {/* Opciones de entrega */}
                     <div className="space-y-3">
                       <p className="font-semibold text-sm text-foreground">¿Cómo lo querés?</p>
@@ -512,7 +531,7 @@ export default function HomePage() {
       </section>
 
       {/* Bebidas */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30" id="bebidas">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-[family-name:var(--font-bebas)] text-5xl md:text-6xl text-primary decorative-line pb-4 inline-block">
@@ -627,7 +646,7 @@ export default function HomePage() {
                 <Phone className="w-5 h-5" />
               </a>
             </div>
-            <p className="text-xs opacity-50 mt-4">© 2024 Doña Rib Burger. Todos los derechos reservados.</p>
+            <p className="text-xs opacity-50 mt-4">© 2025 Doña Rib Burger. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
