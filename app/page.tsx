@@ -12,7 +12,7 @@ import Image from "next/image"
 type CartItem = {
   id: string
   name: string
-  size: "Simple" | "Doble" | "Bebida"
+  size: "Simple" | "Doble" | "Triple" | "Bebida" | "Combo"
   price: number
   quantity: number
 }
@@ -34,6 +34,10 @@ export default function HomePage() {
         price: "$9000",
         description: "Pan de papa, doble medallón de carne, doble queso cheddar + papas caseras",
       },
+      triple: {
+        price: "$13000",
+        description: "Pan brioche, triple medallón de carne, triple queso cheddar + papas fritas",
+      },
     },
     {
       name: "Bacon",
@@ -45,6 +49,10 @@ export default function HomePage() {
       doble: {
         price: "$9500",
         description: "Pan de papa, doble medallón de carne, doble queso cheddar, panceta crocante + papas caseras",
+      },
+      triple: {
+        price: "$13500",
+        description: "Pan brioche, triple medallón de carne, triple queso cheddar, triple panceta crocante + papas fritas",
       },
     },
     {
@@ -60,6 +68,11 @@ export default function HomePage() {
         description:
           "Pan de papa, doble medallón de carne, queso tybo, queso cheddar, panceta, lechuga, tomate + papas caseras",
       },
+      triple: {
+        price: "$13700",
+        description:
+          "Pan brioche, triple medallón de carne, queso cheddar, queso tybo, lechuga, tomate, panceta crocante + papas fritas",
+      },
     },
     {
       name: "Cherry",
@@ -73,6 +86,11 @@ export default function HomePage() {
         price: "$9700",
         description:
           "Pan de papa, doble medallón de carne, doble queso cheddar, cebolla salteada, tomatitos cherrys, panceta crocante + papas caseras",
+      },
+      triple: {
+        price: "$13700",
+        description:
+          "Pan brioche, triple medallón de carne, triple cheddar, panceta crocante, cebolla salteada, tomatitos cherry + papas fritas",
       },
     },
     {
@@ -88,6 +106,29 @@ export default function HomePage() {
         description:
           "Pan de papa, doble medallón de carne, queso roquefort, queso tybo, rúcula, cebolla salteada + papas caseras",
       },
+      triple: {
+        price: "$13700",
+        description:
+          "Pan brioche, triple medallón de carne, queso roquefort, queso tybo, rúcula, cebolla salteada + papas fritas",
+      },
+    },
+  ]
+
+  const combos = [
+    {
+      name: "Combo Original",
+      description: "2 Original doble + papas caseras",
+      price: "$17400",
+    },
+    {
+      name: "Combo Cheese",
+      description: "2 Cheese doble + papas caseras",
+      price: "$16200",
+    },
+    {
+      name: "Combo Bacon",
+      description: "2 Bacon doble + papas caseras",
+      price: "$17100",
     },
   ]
 
@@ -100,7 +141,7 @@ export default function HomePage() {
     { name: "Stella Artois", price: "$4500", emoji: "🍺" },
   ]
 
-  const addToCart = (name: string, size: "Simple" | "Doble" | "Bebida", priceStr: string) => {
+  const addToCart = (name: string, size: "Simple" | "Doble" | "Triple" | "Bebida" | "Combo", priceStr: string) => {
     const price = Number.parseInt(priceStr.replace("$", ""))
     const id = `${name}-${size}`
 
@@ -113,7 +154,8 @@ export default function HomePage() {
     })
 
     // Show notification
-    setNotification({ show: true, item: name, size: size === "Bebida" ? "" : size })
+    const displaySize = size === "Bebida" || size === "Combo" ? "" : size
+    setNotification({ show: true, item: name, size: displaySize })
     setCartBounce(true)
 
     // Auto-hide notification after 2.5 seconds
@@ -230,7 +272,9 @@ export default function HomePage() {
                       <div className="flex-1">
                         <p className="font-semibold text-foreground">{item.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {item.size === "Bebida" ? "🥤 Bebida" : `🍔 ${item.size}`}
+                          {item.size === "Bebida" && "🥤 Bebida"}
+                          {item.size === "Combo" && "🍔🍔 Combo"}
+                          {(item.size === "Simple" || item.size === "Doble" || item.size === "Triple") && `🍔 ${item.size}`}
                         </p>
                         <p className="text-sm font-bold text-primary">${item.price}</p>
                       </div>
@@ -520,9 +564,67 @@ export default function HomePage() {
                           </div>
                           <p className="text-sm text-muted-foreground leading-relaxed">{item.doble.description}</p>
                         </div>
+
+                        {/* Triple */}
+                        <div className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-xl p-4 hover:from-primary/30 hover:to-accent/30 transition-colors border border-primary/30">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-baseline gap-3">
+                              <span className="font-bold text-xl text-primary flex items-center gap-2">
+                                Triple
+                                <Badge className="text-xs bg-accent text-accent-foreground">PREMIUM</Badge>
+                              </span>
+                              <span className="font-[family-name:var(--font-bebas)] text-3xl text-foreground">
+                                {item.triple.price}
+                              </span>
+                            </div>
+                            <Button
+                              onClick={() => addToCart(item.name, "Triple", item.triple.price)}
+                              className="gap-2 btn-premium bg-accent text-accent-foreground hover:bg-accent/90"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Agregar
+                            </Button>
+                          </div>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{item.triple.description}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Combos */}
+      <section className="py-20 bg-gradient-to-b from-secondary/20 to-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="font-[family-name:var(--font-bebas)] text-5xl md:text-7xl text-primary decorative-line pb-4 inline-block">
+              Combos 🔥
+            </h2>
+            <p className="text-muted-foreground mt-6 text-lg">Para compartir o para vos solo 😋</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {combos.map((combo, index) => (
+              <Card
+                key={index}
+                className="combo-card shine-effect overflow-hidden border-2 border-secondary hover:border-primary bg-card shadow-lg rounded-2xl"
+              >
+                <CardContent className="p-6 text-center space-y-4">
+                  <div className="text-5xl emoji-beat cursor-default">🍔🍔</div>
+                  <h3 className="font-[family-name:var(--font-bebas)] text-3xl text-primary">{combo.name}</h3>
+                  <p className="text-muted-foreground text-sm">{combo.description}</p>
+                  <p className="font-[family-name:var(--font-bebas)] text-4xl text-foreground">{combo.price}</p>
+                  <Button
+                    onClick={() => addToCart(combo.name, "Combo", combo.price)}
+                    className="w-full gap-2 btn-premium btn-shake"
+                    size="lg"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Agregar combo
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -542,16 +644,16 @@ export default function HomePage() {
             {drinks.map((drink, index) => (
               <Card
                 key={index}
-                className="drink-card text-center border-2 border-border/50 hover:border-primary/50 bg-card group"
+                className="drink-card shine-effect text-center border-2 border-border/50 hover:border-primary/50 bg-card group rounded-xl"
               >
                 <CardContent className="p-4 space-y-2">
-                  <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">{drink.emoji}</div>
+                  <div className="text-4xl mb-2 group-hover:scale-125 transition-transform duration-300 cursor-default emoji-beat">{drink.emoji}</div>
                   <p className="font-medium text-foreground text-sm leading-tight">{drink.name}</p>
                   <p className="font-[family-name:var(--font-bebas)] text-2xl text-primary">{drink.price}</p>
                   <Button
                     size="sm"
                     onClick={() => addToCart(drink.name, "Bebida", drink.price)}
-                    className="w-full mt-2 gap-1"
+                    className="w-full mt-2 gap-1 btn-shake"
                   >
                     <Plus className="w-3 h-3" />
                     Agregar
@@ -568,7 +670,7 @@ export default function HomePage() {
         <div className="absolute inset-0 checkerboard-pattern opacity-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         <div className="container mx-auto px-4 text-center relative z-10">
-          <div className="text-6xl mb-6">🍔</div>
+          <div className="text-7xl mb-6 animate-bounce-subtle cursor-default">🍔</div>
           <h2 className="font-[family-name:var(--font-bebas)] text-4xl md:text-6xl mb-6 text-balance drop-shadow-lg">
             ¿Tenés hambre?
           </h2>

@@ -11,23 +11,23 @@
   --card-foreground: oklch(0.20 0.02 40);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.20 0.02 40);
-  
+
   /* Primary: Marrón carne/burger */
   --primary: oklch(0.42 0.11 45);
   --primary-foreground: oklch(0.98 0.01 80);
-  
+
   /* Secondary: Amarillo mostaza */
   --secondary: oklch(0.82 0.14 85);
   --secondary-foreground: oklch(0.25 0.05 40);
-  
+
   /* Muted: Crema suave */
   --muted: oklch(0.95 0.02 80);
   --muted-foreground: oklch(0.45 0.03 40);
-  
+
   /* Accent: Rojo tomate */
   --accent: oklch(0.55 0.22 25);
   --accent-foreground: oklch(0.98 0.01 80);
-  
+
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: oklch(0.90 0.02 80);
@@ -129,6 +129,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -136,18 +137,37 @@
 
 /* Animaciones personalizadas */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(139, 69, 19, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(139, 69, 19, 0.6); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(139, 69, 19, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(139, 69, 19, 0.6);
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes fade-in-up {
@@ -155,6 +175,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -171,7 +192,7 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -182,11 +203,11 @@
 
 /* Patrón decorativo checkboard */
 .checkerboard-pattern {
-  background-image: 
-    linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(0,0,0,0.1) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.1) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.1) 75%);
+  background-image:
+    linear-gradient(45deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.1) 75%);
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
 }
@@ -217,7 +238,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -251,7 +272,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 0.5s ease;
 }
 
@@ -286,4 +307,280 @@
 .drink-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 12px 30px rgba(139, 69, 19, 0.15);
+}
+
+/* Animaciones de scroll (aparición suave) */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wiggle {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-3deg);
+  }
+
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes bounce-subtle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(139, 69, 19, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(139, 69, 19, 0.6), 0 0 40px rgba(139, 69, 19, 0.3);
+  }
+}
+
+/* Clases de animación adicionales */
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+.animate-wiggle-hover:hover {
+  animation: wiggle 0.3s ease-in-out;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out forwards;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Animaciones con delay para secuencia */
+.animate-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animate-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animate-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animate-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animate-delay-500 {
+  animation-delay: 0.5s;
+}
+
+/* Efecto shake para botones */
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+.btn-shake:hover {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Efecto de brillo en movimiento */
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
+  transition: left 0.5s ease;
+}
+
+.shine-effect:hover::before {
+  left: 100%;
+}
+
+/* Texto con gradiente animado */
+.text-gradient-animated {
+  background: linear-gradient(90deg,
+      var(--primary),
+      var(--accent),
+      var(--secondary),
+      var(--primary));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Efecto de latido para emojis */
+@keyframes heartbeat {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  10%,
+  30% {
+    transform: scale(1.1);
+  }
+
+  20%,
+  40% {
+    transform: scale(1);
+  }
+}
+
+.emoji-beat:hover {
+  animation: heartbeat 0.8s ease-in-out;
+}
+
+/* Combo card especial */
+.combo-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.combo-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.combo-card:hover::before {
+  opacity: 1;
+}
+
+.combo-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px rgba(139, 69, 19, 0.25);
+}
+
+/* Input focus animado */
+input:focus {
+  animation: pulse-border 1s ease-in-out;
+}
+
+@keyframes pulse-border {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--primary);
+  }
+
+  50% {
+    box-shadow: 0 0 0 4px var(--primary);
+  }
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selección de texto personalizada */
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
 }
