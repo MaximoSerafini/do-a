@@ -25,6 +25,8 @@ export interface Product {
     created_at: string
 }
 
+export type OrderStatus = 'pending' | 'confirmed' | 'cancelled'
+
 export interface Order {
     id: string
     items: OrderItem[]
@@ -32,6 +34,7 @@ export interface Order {
     delivery_type: 'pickup' | 'delivery'
     payment_method: 'efectivo' | 'transferencia'
     address?: string
+    status: OrderStatus
     created_at: string
 }
 

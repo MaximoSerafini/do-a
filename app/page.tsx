@@ -158,7 +158,8 @@ export default function HomePage() {
         total: total,
         delivery_type: deliveryOption,
         payment_method: paymentMethod,
-        address: deliveryOption === 'delivery' ? deliveryAddress : null
+        address: deliveryOption === 'delivery' ? deliveryAddress : null,
+        status: 'pending'
       }])
     } catch (error) {
       console.error('Error registering order:', error)
