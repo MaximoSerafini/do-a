@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Phone, Instagram, Clock, ShoppingCart, Plus, Minus, X, MapPin, Star, Check, Home, Truck } from "lucide-react"
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback, useMemo, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
@@ -29,121 +29,64 @@ export default function HomePage() {
   const [deliveryAddress, setDeliveryAddress] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "transferencia">("efectivo")
 
-  const menuItems = [
-    {
-      name: "Cheese",
-      image: "https://i.imgur.com/EAzgTuw.jpeg",
-      simple: { price: "$7500", description: "Pan de papa, medallón de carne, queso cheddar + papas caseras" },
-      doble: {
-        price: "$9000",
-        description: "Pan de papa, doble medallón de carne, doble queso cheddar + papas caseras",
-      },
-      triple: {
-        price: "$13000",
-        description: "Pan brioche, triple medallón de carne, triple queso cheddar + papas fritas",
-      },
-    },
-    {
-      name: "Bacon",
-      image: "https://i.imgur.com/kzoxFME.jpeg",
-      simple: {
-        price: "$8000",
-        description: "Pan de papa, medallón de carne, queso cheddar, panceta crocante + papas caseras",
-      },
-      doble: {
-        price: "$9500",
-        description: "Pan de papa, doble medallón de carne, doble queso cheddar, panceta crocante + papas caseras",
-      },
-      triple: {
-        price: "$13500",
-        description: "Pan brioche, triple medallón de carne, triple queso cheddar, triple panceta crocante + papas fritas",
-      },
-    },
-    {
-      name: "Original",
-      image: "https://i.imgur.com/OKHQXbg.jpeg",
-      simple: {
-        price: "$7700",
-        description:
-          "Pan de papa, medallón de carne, queso tybo, queso cheddar, panceta, lechuga, tomate + papas caseras",
-      },
-      doble: {
-        price: "$9700",
-        description:
-          "Pan de papa, doble medallón de carne, queso tybo, queso cheddar, panceta, lechuga, tomate + papas caseras",
-      },
-      triple: {
-        price: "$13700",
-        description:
-          "Pan brioche, triple medallón de carne, queso cheddar, queso tybo, lechuga, tomate, panceta crocante + papas fritas",
-      },
-    },
-    {
-      name: "Cherry",
-      image: "https://i.imgur.com/AUgQX2C.jpeg",
-      simple: {
-        price: "$7700",
-        description:
-          "Pan de papa, medallón de carne, queso cheddar, cebolla salteada, tomatitos cherrys, panceta crocante + papas caseras",
-      },
-      doble: {
-        price: "$9700",
-        description:
-          "Pan de papa, doble medallón de carne, doble queso cheddar, cebolla salteada, tomatitos cherrys, panceta crocante + papas caseras",
-      },
-      triple: {
-        price: "$13700",
-        description:
-          "Pan brioche, triple medallón de carne, triple cheddar, panceta crocante, cebolla salteada, tomatitos cherry + papas fritas",
-      },
-    },
-    {
-      name: "Blue",
-      image: "https://i.imgur.com/89U7BDh.jpeg",
-      simple: {
-        price: "$7700",
-        description:
-          "Pan de papa, medallón de carne, queso roquefort, queso tybo, rúcula, cebolla salteada + papas caseras",
-      },
-      doble: {
-        price: "$9700",
-        description:
-          "Pan de papa, doble medallón de carne, queso roquefort, queso tybo, rúcula, cebolla salteada + papas caseras",
-      },
-      triple: {
-        price: "$13700",
-        description:
-          "Pan brioche, triple medallón de carne, queso roquefort, queso tybo, rúcula, cebolla salteada + papas fritas",
-      },
-    },
-  ]
+  // Products from Supabase
+  const [menuItems, setMenuItems] = useState<any[]>([])
+  const [combos, setCombos] = useState<any[]>([])
+  const [drinks, setDrinks] = useState<any[]>([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
 
-  const combos = [
-    {
-      name: "Combo Original",
-      description: "2 Original doble + papas caseras",
-      price: "$17400",
-    },
-    {
-      name: "Combo Cheese",
-      description: "2 Cheese doble + papas caseras",
-      price: "$16200",
-    },
-    {
-      name: "Combo Bacon",
-      description: "2 Bacon doble + papas caseras",
-      price: "$17100",
-    },
-  ]
+  // Load products from Supabase
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('active', true)
+          .order('name', { ascending: true })
 
-  const drinks = [
-    { name: "Pepsi Clásica", price: "$3000", image: "https://i.imgur.com/VWvI0br.png" },
-    { name: "Pepsi Black", price: "$3000", image: "https://i.imgur.com/IaF8xgi.png" },
-    { name: "Mirinda", price: "$3000", image: "https://i.imgur.com/CQRHJgd.png" },
-    { name: "7up", price: "$3000", image: "https://i.imgur.com/52llEiN.png" },
-    { name: "h2oh!", price: "$3000", image: "https://i.imgur.com/pCAOj5c.png" },
-    { name: "Stella Artois", price: "$4500", image: "https://i.imgur.com/soWSw9y.png" },
-  ]
+        if (error) throw error
+
+        // Transform data to match expected format
+        const burgers = (data || [])
+          .filter(p => p.type === 'burger')
+          .map(p => ({
+            name: p.name,
+            image: p.image_url,
+            simple: { price: `$${p.price_simple}`, description: p.description_simple || p.description || '' },
+            doble: { price: `$${p.price_doble}`, description: p.description_doble || p.description || '' },
+            triple: { price: `$${p.price_triple}`, description: p.description_triple || p.description || '' }
+          }))
+
+        const comboItems = (data || [])
+          .filter(p => p.type === 'combo')
+          .map(p => ({
+            name: p.name,
+            description: p.description || '',
+            price: `$${p.price}`,
+            image: p.image_url
+          }))
+
+        const drinkItems = (data || [])
+          .filter(p => p.type === 'drink')
+          .map(p => ({
+            name: p.name,
+            price: `$${p.price}`,
+            image: p.image_url
+          }))
+
+        setMenuItems(burgers)
+        setCombos(comboItems)
+        setDrinks(drinkItems)
+      } catch (error) {
+        console.error('Error loading products:', error)
+      } finally {
+        setLoadingProducts(false)
+      }
+    }
+
+    loadProducts()
+  }, [])
 
   const addToCart = useCallback((name: string, size: "Simple" | "Doble" | "Triple" | "Bebida" | "Combo", priceStr: string, image?: string) => {
     const price = Number.parseInt(priceStr.replace("$", ""))
