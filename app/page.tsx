@@ -539,7 +539,7 @@ export default function HomePage() {
               <div className="p-2 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
                 <Instagram className="w-4 h-4 text-primary" />
               </div>
-              <span className="font-medium">@donaribburguer</span>
+              <span className="font-medium">@donaribburger</span>
             </motion.a>
             <div className="flex items-center gap-2">
               <div className="p-2 bg-primary/10 rounded-full">
