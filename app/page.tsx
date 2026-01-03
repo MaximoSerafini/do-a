@@ -545,7 +545,7 @@ export default function HomePage() {
               <div className="p-2 bg-primary/10 rounded-full">
                 <Clock className="w-4 h-4 text-primary" />
               </div>
-              <span className="font-medium">19:45 - 23:59</span>
+              <span className="font-medium">Mié a Dom • 19:45 - 23:59</span>
             </div>
           </div>
         </div>
@@ -1027,7 +1027,7 @@ export default function HomePage() {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="w-4 h-4 opacity-70" />
-                <span>19:45 - 23:59</span>
+                <span>Mié a Dom • 19:45 - 23:59</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Phone className="w-4 h-4 opacity-70" />
