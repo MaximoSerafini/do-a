@@ -3,11 +3,12 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Phone, Instagram, Clock, ShoppingCart, Plus, Minus, X, MapPin, Star, Check, Home, Truck } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 
 type CartItem = {
   id: string
@@ -15,6 +16,7 @@ type CartItem = {
   size: "Simple" | "Doble" | "Triple" | "Bebida" | "Combo"
   price: number
   quantity: number
+  image?: string
 }
 
 export default function HomePage() {
@@ -28,7 +30,7 @@ export default function HomePage() {
   const menuItems = [
     {
       name: "Cheese",
-      image: "/images/cheese.png",
+      image: "https://i.imgur.com/EAzgTuw.jpeg",
       simple: { price: "$7500", description: "Pan de papa, medallón de carne, queso cheddar + papas caseras" },
       doble: {
         price: "$9000",
@@ -41,7 +43,7 @@ export default function HomePage() {
     },
     {
       name: "Bacon",
-      image: "/images/bacon.png",
+      image: "https://i.imgur.com/kzoxFME.jpeg",
       simple: {
         price: "$8000",
         description: "Pan de papa, medallón de carne, queso cheddar, panceta crocante + papas caseras",
@@ -57,7 +59,7 @@ export default function HomePage() {
     },
     {
       name: "Original",
-      image: "/images/original.png",
+      image: "https://i.imgur.com/OKHQXbg.jpeg",
       simple: {
         price: "$7700",
         description:
@@ -76,7 +78,7 @@ export default function HomePage() {
     },
     {
       name: "Cherry",
-      image: "/images/cherry.png",
+      image: "https://i.imgur.com/AUgQX2C.jpeg",
       simple: {
         price: "$7700",
         description:
@@ -95,7 +97,7 @@ export default function HomePage() {
     },
     {
       name: "Blue",
-      image: "/images/blue.png",
+      image: "https://i.imgur.com/89U7BDh.jpeg",
       simple: {
         price: "$7700",
         description:
@@ -133,15 +135,15 @@ export default function HomePage() {
   ]
 
   const drinks = [
-    { name: "Pepsi Clásica", price: "$3000", emoji: "🥤" },
-    { name: "Pepsi Black", price: "$3000", emoji: "🖤" },
-    { name: "Mirinda", price: "$3000", emoji: "🍊" },
-    { name: "7up", price: "$3000", emoji: "🍋" },
-    { name: "h2oh!", price: "$3000", emoji: "💧" },
-    { name: "Stella Artois", price: "$4500", emoji: "🍺" },
+    { name: "Pepsi Clásica", price: "$3000", image: "https://i.imgur.com/VWvI0br.png" },
+    { name: "Pepsi Black", price: "$3000", image: "https://i.imgur.com/IaF8xgi.png" },
+    { name: "Mirinda", price: "$3000", image: "https://i.imgur.com/CQRHJgd.png" },
+    { name: "7up", price: "$3000", image: "https://i.imgur.com/52llEiN.png" },
+    { name: "h2oh!", price: "$3000", image: "https://i.imgur.com/pCAOj5c.png" },
+    { name: "Stella Artois", price: "$4500", image: "https://i.imgur.com/soWSw9y.png" },
   ]
 
-  const addToCart = (name: string, size: "Simple" | "Doble" | "Triple" | "Bebida" | "Combo", priceStr: string) => {
+  const addToCart = useCallback((name: string, size: "Simple" | "Doble" | "Triple" | "Bebida" | "Combo", priceStr: string, image?: string) => {
     const price = Number.parseInt(priceStr.replace("$", ""))
     const id = `${name}-${size}`
 
@@ -150,7 +152,7 @@ export default function HomePage() {
       if (existingItem) {
         return prevCart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item))
       }
-      return [...prevCart, { id, name, size, price, quantity: 1 }]
+      return [...prevCart, { id, name, size, price, quantity: 1, image }]
     })
 
     // Show notification
@@ -167,13 +169,13 @@ export default function HomePage() {
     setTimeout(() => {
       setCartBounce(false)
     }, 600)
-  }
+  }, [])
 
-  const removeFromCart = (id: string) => {
+  const removeFromCart = useCallback((id: string) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id))
-  }
+  }, [])
 
-  const updateQuantity = (id: string, change: number) => {
+  const updateQuantity = useCallback((id: string, change: number) => {
     setCart((prevCart) => {
       return prevCart
         .map((item) => {
@@ -185,9 +187,9 @@ export default function HomePage() {
         })
         .filter((item) => item.quantity > 0)
     })
-  }
+  }, [])
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const total = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart])
 
   const sendWhatsAppOrder = () => {
     if (cart.length === 0) return
@@ -250,128 +252,214 @@ export default function HomePage() {
               )}
             </Button>
           </SheetTrigger>
-          <SheetContent className="border-l-4 border-primary">
-            <SheetHeader>
-              <SheetTitle className="font-[family-name:var(--font-bebas)] text-3xl flex items-center gap-2">
-                <ShoppingCart className="w-7 h-7 text-primary" />
-                Tu Pedido
-              </SheetTitle>
-              <SheetDescription>Revisá tu pedido antes de enviarlo</SheetDescription>
-            </SheetHeader>
-            <div className="mt-8 space-y-4">
-              {cart.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🍔</div>
-                  <p className="text-muted-foreground">Tu carrito está vacío</p>
+          <SheetContent className="border-l-0 flex flex-col h-full bg-white p-0 w-full sm:max-w-md" side="right">
+            {/* Header del carrito */}
+            <div className="p-6 pb-4 flex-shrink-0">
+              <SheetHeader>
+                <SheetTitle className="font-[family-name:var(--font-bebas)] text-4xl flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <ShoppingCart className="w-6 h-6 text-primary" />
+                  </div>
+                  Carrito
+                </SheetTitle>
+              </SheetHeader>
+            </div>
+
+            {cart.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <motion.div
+                  className="text-center py-12"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                >
+                  <div className="text-7xl mb-4">🍔</div>
+                  <p className="text-muted-foreground font-medium">Tu carrito está vacío</p>
                   <p className="text-sm text-muted-foreground mt-1">¡Agregá una hamburguesa deliciosa!</p>
-                </div>
-              ) : (
-                <>
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 border-b border-border/50 pb-4 hover:bg-muted/30 rounded-lg p-2 transition-colors">
-                      <div className="flex-1">
-                        <p className="font-semibold text-foreground">{item.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {item.size === "Bebida" && "🥤 Bebida"}
-                          {item.size === "Combo" && "🍔🍔 Combo"}
-                          {(item.size === "Simple" || item.size === "Doble" || item.size === "Triple") && `🍔 ${item.size}`}
-                        </p>
-                        <p className="text-sm font-bold text-primary">${item.price}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button size="icon" variant="outline" onClick={() => updateQuantity(item.id, -1)} className="h-8 w-8">
-                          <Minus className="w-3 h-3" />
-                        </Button>
-                        <span className="w-8 text-center font-bold">{item.quantity}</span>
-                        <Button size="icon" variant="outline" onClick={() => updateQuantity(item.id, 1)} className="h-8 w-8">
-                          <Plus className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="pt-6 border-t-2 border-primary/20 space-y-4">
-                    {/* Sugerencia de bebida si no hay bebidas en el carrito */}
-                    {!cart.some(item => item.size === "Bebida") && (
-                      <div className="bg-secondary/30 border border-secondary rounded-xl p-4 flex items-center gap-3">
-                        <div className="text-3xl">🥤</div>
-                        <div className="flex-1">
-                          <p className="font-medium text-sm text-foreground">¿No querés agregar una bebida?</p>
-                          <p className="text-xs text-muted-foreground">Completá tu pedido con una bebida fría</p>
+                </motion.div>
+              </div>
+            ) : (
+              <>
+                {/* Área scrolleable para los productos */}
+                <div className="flex-1 overflow-y-auto px-4 space-y-3">
+                  <AnimatePresence>
+                    {cart.map((item, index) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="bg-white rounded-2xl border-l-4 border-primary shadow-md p-4 hover:shadow-lg transition-shadow"
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* Imagen del producto */}
+                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {item.image ? (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className={`w-full h-full ${item.size === "Bebida" ? "object-contain p-1" : "object-cover"}`}
+                              />
+                            ) : (
+                              <span className="text-3xl">🍔</span>
+                            )}
+                          </div>
+
+                          {/* Info del producto */}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-foreground truncate">{item.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {item.size === "Bebida" && "Bebida"}
+                              {item.size === "Combo" && "Combo"}
+                              {(item.size === "Simple" || item.size === "Doble" || item.size === "Triple") && item.size}
+                            </p>
+                            {/* Controles de cantidad */}
+                            <div className="flex items-center gap-2 mt-2">
+                              <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => updateQuantity(item.id, -1)}
+                                className="w-7 h-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </motion.button>
+                              <span className="w-6 text-center font-bold text-sm">{item.quantity}</span>
+                              <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => updateQuantity(item.id, 1)}
+                                className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-colors"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </motion.button>
+                            </div>
+                          </div>
+
+                          {/* Precio y eliminar */}
+                          <div className="text-right flex-shrink-0">
+                            <p className="font-[family-name:var(--font-bebas)] text-2xl text-primary">
+                              ${item.price * item.quantity}
+                            </p>
+                            <motion.button
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => removeFromCart(item.id)}
+                              className="text-xs text-muted-foreground hover:text-destructive transition-colors mt-1"
+                            >
+                              Eliminar
+                            </motion.button>
+                          </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => setIsCartOpen(false)}
-                          asChild
-                        >
-                          <a href="#bebidas">Ver bebidas</a>
-                        </Button>
-                      </div>
-                    )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
 
-                    {/* Opciones de entrega */}
-                    <div className="space-y-3">
-                      <p className="font-semibold text-sm text-foreground">¿Cómo lo querés?</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button
-                          type="button"
-                          variant={deliveryOption === "pickup" ? "default" : "outline"}
-                          className="flex items-center gap-2 h-12"
-                          onClick={() => setDeliveryOption("pickup")}
-                        >
-                          <Home className="w-4 h-4" />
-                          <span className="text-sm">Retiro</span>
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={deliveryOption === "delivery" ? "default" : "outline"}
-                          className="flex items-center gap-2 h-12"
-                          onClick={() => setDeliveryOption("delivery")}
-                        >
-                          <Truck className="w-4 h-4" />
-                          <span className="text-sm">Envío</span>
-                        </Button>
+                  {/* Sugerencia de bebida si no hay bebidas en el carrito */}
+                  {!cart.some(item => item.size === "Bebida") && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center gap-3"
+                    >
+                      <div className="text-3xl">🥤</div>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-foreground">¿Agregamos una bebida?</p>
+                        <p className="text-xs text-muted-foreground">Completá tu pedido</p>
                       </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsCartOpen(false)}
+                        className="rounded-full border-primary text-primary hover:bg-primary hover:text-white"
+                        asChild
+                      >
+                        <a href="#bebidas">Ver</a>
+                      </Button>
+                    </motion.div>
+                  )}
+                </div>
 
+                {/* Sección FIJA al fondo */}
+                <div className="flex-shrink-0 border-t bg-gradient-to-t from-muted/30 to-white px-4 py-4 space-y-4">
+                  {/* Opciones de entrega */}
+                  <div className="space-y-3">
+                    <p className="font-semibold text-sm text-foreground">¿Cómo lo querés?</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        className={`flex items-center justify-center gap-2 h-12 rounded-xl font-medium transition-all ${deliveryOption === "pickup"
+                          ? "bg-primary text-white shadow-lg"
+                          : "bg-muted text-foreground hover:bg-muted/80"
+                          }`}
+                        onClick={() => setDeliveryOption("pickup")}
+                      >
+                        <Home className="w-4 h-4" />
+                        Retiro
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        className={`flex items-center justify-center gap-2 h-12 rounded-xl font-medium transition-all ${deliveryOption === "delivery"
+                          ? "bg-primary text-white shadow-lg"
+                          : "bg-muted text-foreground hover:bg-muted/80"
+                          }`}
+                        onClick={() => setDeliveryOption("delivery")}
+                      >
+                        <Truck className="w-4 h-4" />
+                        Envío
+                      </motion.button>
+                    </div>
+
+                    <AnimatePresence>
                       {deliveryOption === "delivery" && (
-                        <div className="space-y-2 animate-fade-in-up">
-                          <label className="text-sm text-muted-foreground">Dirección de envío</label>
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="space-y-2 overflow-hidden"
+                        >
                           <Input
-                            placeholder="Ej: Av. Corrientes 1234, Piso 2"
+                            placeholder="Dirección de envío..."
                             value={deliveryAddress}
                             onChange={(e) => setDeliveryAddress(e.target.value)}
-                            className="h-12"
+                            className="h-12 rounded-xl border-primary/30 focus:border-primary"
                           />
-                          <p className="text-xs text-muted-foreground">* El costo del envío se coordina por WhatsApp</p>
-                        </div>
+                          <p className="text-xs text-muted-foreground">* Costo de envío a coordinar</p>
+                        </motion.div>
                       )}
-                    </div>
-
-                    <div className="flex justify-between items-center bg-muted/50 rounded-xl p-4">
-                      <span className="font-[family-name:var(--font-bebas)] text-2xl">Total</span>
-                      <span className="font-[family-name:var(--font-bebas)] text-4xl text-primary">${total}</span>
-                    </div>
-                    <Button onClick={sendWhatsAppOrder} className="w-full btn-premium" size="lg">
-                      <Phone className="mr-2 w-5 h-5" />
-                      Enviar pedido por WhatsApp
-                    </Button>
+                    </AnimatePresence>
                   </div>
-                </>
-              )}
-            </div>
+
+                  {/* Total */}
+                  <div className="flex justify-between items-center bg-primary/5 rounded-2xl p-4 border border-primary/20">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Total</p>
+                      <p className="font-[family-name:var(--font-bebas)] text-4xl text-primary">${total}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground">Tiempo estimado</p>
+                      <p className="text-sm font-medium flex items-center gap-1">
+                        <Clock className="w-4 h-4 text-primary" />
+                        30-45 min
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Botón de pedido */}
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      onClick={sendWhatsAppOrder}
+                      className="w-full h-14 rounded-2xl font-[family-name:var(--font-bebas)] text-xl tracking-wide shadow-lg"
+                      size="lg"
+                    >
+                      <Phone className="mr-2 w-5 h-5" />
+                      Hacer pedido
+                    </Button>
+                  </motion.div>
+                </div>
+              </>
+            )}
           </SheetContent>
         </Sheet>
       </div>
 
-      {/* Header con logo real */}
+      {/* Header con logo real - ANIMADO */}
       <header className="relative bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground overflow-hidden">
         <div className="absolute inset-0 checkerboard-pattern opacity-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -379,9 +467,18 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-10 relative z-10">
           {/* Logo y nombre */}
           <div className="flex flex-col items-center gap-6">
-            <div className="relative animate-float">
-              <div className="absolute inset-0 bg-secondary/30 rounded-full blur-2xl scale-150" />
-              <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden shadow-2xl ring-4 ring-secondary/50 animate-pulse-glow">
+            <motion.div
+              className="relative"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-white/30 rounded-full blur-2xl scale-150"
+                animate={{ scale: [1.5, 1.8, 1.5], opacity: [0.3, 0.5, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              />
+              <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden shadow-2xl ring-4 ring-white/50">
                 <Image
                   src="/logo.jpeg"
                   alt="Doña Rib Burger Logo"
@@ -390,91 +487,130 @@ export default function HomePage() {
                   priority
                 />
               </div>
-            </div>
-            <div className="text-center">
+            </motion.div>
+
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
               <h1 className="font-[family-name:var(--font-bebas)] text-5xl md:text-7xl tracking-wider text-balance drop-shadow-lg">
                 Doña Rib Burger
               </h1>
-              <p className="text-lg md:text-xl mt-2 opacity-90 flex items-center justify-center gap-2">
-                <Star className="w-5 h-5 text-secondary fill-secondary" />
+              <motion.p
+                className="text-lg md:text-xl mt-2 opacity-90 flex items-center justify-center gap-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
                 Hamburguesas Gourmet
-                <Star className="w-5 h-5 text-secondary fill-secondary" />
-              </p>
-            </div>
+                <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
+              </motion.p>
+            </motion.div>
           </div>
         </div>
       </header>
 
-      {/* Info de contacto */}
-      <div className="bg-secondary text-secondary-foreground py-5 shadow-lg">
+      {/* Info de contacto - ANIMADO */}
+      <motion.div
+        className="bg-white text-foreground py-4 shadow-lg border-b"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12">
-            <a href="tel:+5493795312150" className="flex items-center gap-2 hover:scale-105 transition-transform group">
-              <div className="p-2 bg-secondary-foreground/10 rounded-full group-hover:bg-secondary-foreground/20 transition-colors">
-                <Phone className="w-4 h-4" />
+            <motion.a
+              href="tel:+5493795312150"
+              className="flex items-center gap-2 hover:text-primary transition-colors group"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="p-2 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                <Phone className="w-4 h-4 text-primary" />
               </div>
               <span className="font-medium">+54 9 3795 31-2150</span>
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href="https://www.instagram.com/donaribburger/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:scale-105 transition-transform group"
+              className="flex items-center gap-2 hover:text-primary transition-colors group"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <div className="p-2 bg-secondary-foreground/10 rounded-full group-hover:bg-secondary-foreground/20 transition-colors">
-                <Instagram className="w-4 h-4" />
+              <div className="p-2 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                <Instagram className="w-4 h-4 text-primary" />
               </div>
               <span className="font-medium">@donaribburguer</span>
-            </a>
+            </motion.a>
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-secondary-foreground/10 rounded-full">
-                <Clock className="w-4 h-4" />
+              <div className="p-2 bg-primary/10 rounded-full">
+                <Clock className="w-4 h-4 text-primary" />
               </div>
               <span className="font-medium">19:45 - 23:59</span>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Hero Section */}
-      <section className="relative py-20 md:py-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-muted/80 via-muted/40 to-background" />
-        <div className="absolute inset-0 opacity-5">
-          <div className="w-full h-full" style={{
-            backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
-          }} />
-        </div>
+      {/* Hero Section - ANIMADO */}
+      <section className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-b from-muted/50 to-background">
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="font-[family-name:var(--font-bebas)] text-4xl md:text-6xl text-foreground mb-6 text-balance animate-fade-in-up decorative-line pb-4">
+            <motion.h2
+              className="font-[family-name:var(--font-bebas)] text-4xl md:text-6xl text-foreground mb-6 text-balance"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
               Las mejores hamburguesas de la ciudad
-            </h2>
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 text-pretty leading-relaxed max-w-2xl mx-auto">
+            </motion.h2>
+            <motion.p
+              className="text-lg md:text-xl text-muted-foreground mb-10 text-pretty leading-relaxed max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
               Carne de primera calidad, ingredientes frescos y el sabor que te hace volver.
               Cada hamburguesa es una experiencia única.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="font-[family-name:var(--font-bebas)] text-xl tracking-wide btn-premium shadow-xl hover:shadow-2xl transition-shadow"
-                asChild
-              >
-                <a href="https://wa.me/5493795312150" className="gap-2">
-                  <Phone className="w-5 h-5" />
-                  Pedí ahora
-                </a>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="font-[family-name:var(--font-bebas)] text-xl tracking-wide border-2 hover:bg-primary hover:text-primary-foreground transition-colors"
-                asChild
-              >
-                <a href="#menu" className="gap-2">
-                  Ver Menú
-                </a>
-              </Button>
-            </div>
+            </motion.p>
+            <motion.div
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+            >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  size="lg"
+                  className="font-[family-name:var(--font-bebas)] text-xl tracking-wide shadow-xl hover:shadow-2xl transition-shadow w-full sm:w-auto"
+                  asChild
+                >
+                  <a href="https://wa.me/5493795312150" className="gap-2">
+                    <Phone className="w-5 h-5" />
+                    Pedí ahora
+                  </a>
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="font-[family-name:var(--font-bebas)] text-xl tracking-wide border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors w-full sm:w-auto"
+                  asChild
+                >
+                  <a href="#menu" className="gap-2">
+                    Ver Menú
+                  </a>
+                </Button>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -482,152 +618,224 @@ export default function HomePage() {
       {/* Menú */}
       <section className="py-20 bg-gradient-to-b from-background to-muted/30" id="menu">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             <h2 className="font-[family-name:var(--font-bebas)] text-5xl md:text-7xl text-primary decorative-line pb-4 inline-block">
               Nuestro Menú
             </h2>
             <p className="text-muted-foreground mt-6 text-lg">Todas nuestras hamburguesas incluyen papas caseras 🍟</p>
-          </div>
+          </motion.div>
 
-          <div className="grid gap-8 max-w-6xl mx-auto">
+          {/* Grid de hamburguesas - estilo flotante */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto pt-12">
             {menuItems.map((item, index) => (
-              <Card
+              <motion.div
                 key={index}
-                className="menu-card overflow-hidden border-2 border-border/50 hover:border-primary/50 bg-card shadow-lg"
-                style={{ animationDelay: `${index * 100}ms` }}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
               >
-                <CardContent className="p-0">
-                  <div className="grid md:grid-cols-[320px_1fr] gap-0">
-                    {/* Imagen de hamburguesa */}
-                    <div className="relative h-72 md:h-full min-h-[280px] bg-gradient-to-br from-primary/10 to-secondary/10 overflow-hidden">
-                      <Image
+                <Card className="menu-card overflow-visible border-0 bg-white shadow-xl rounded-3xl group relative h-full">
+                  {/* Imagen flotante sobre la card */}
+                  <div className="relative -mt-10 mx-4">
+                    <motion.div
+                      className="relative h-64 w-full overflow-hidden rounded-2xl shadow-2xl bg-gradient-to-br from-primary/10 to-primary/5"
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <img
                         src={item.image}
                         alt={`Hamburguesa ${item.name}`}
-                        fill
-                        className="object-cover menu-card-image"
-                        sizes="(max-width: 768px) 100vw, 320px"
+                        loading="lazy"
+                        className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <Badge className="bg-primary/90 text-primary-foreground text-lg px-4 py-1 font-[family-name:var(--font-bebas)] tracking-wider">
-                          {item.name}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Info del producto */}
-                    <div className="p-6 md:p-8 space-y-5 flex flex-col justify-center">
-                      <h3 className="font-[family-name:var(--font-bebas)] text-4xl md:text-5xl text-primary tracking-wider hidden md:block">
-                        {item.name}
-                      </h3>
-
-                      <div className="space-y-4">
-                        {/* Simple */}
-                        <div className="bg-muted/40 rounded-xl p-4 hover:bg-muted/60 transition-colors">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-baseline gap-3">
-                              <span className="font-bold text-xl text-primary">Simple</span>
-                              <span className="font-[family-name:var(--font-bebas)] text-3xl text-foreground">
-                                {item.simple.price}
-                              </span>
-                            </div>
-                            <Button
-                              onClick={() => addToCart(item.name, "Simple", item.simple.price)}
-                              className="gap-2 btn-premium"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Agregar
-                            </Button>
-                          </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{item.simple.description}</p>
-                        </div>
-
-                        {/* Doble */}
-                        <div className="bg-secondary/20 rounded-xl p-4 hover:bg-secondary/30 transition-colors border border-secondary/30">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-baseline gap-3">
-                              <span className="font-bold text-xl text-secondary-foreground flex items-center gap-2">
-                                Doble
-                                <Badge variant="secondary" className="text-xs">+CARNE</Badge>
-                              </span>
-                              <span className="font-[family-name:var(--font-bebas)] text-3xl text-foreground">
-                                {item.doble.price}
-                              </span>
-                            </div>
-                            <Button
-                              onClick={() => addToCart(item.name, "Doble", item.doble.price)}
-                              className="gap-2 btn-premium bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Agregar
-                            </Button>
-                          </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{item.doble.description}</p>
-                        </div>
-
-                        {/* Triple */}
-                        <div className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-xl p-4 hover:from-primary/30 hover:to-accent/30 transition-colors border border-primary/30">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-baseline gap-3">
-                              <span className="font-bold text-xl text-primary flex items-center gap-2">
-                                Triple
-                                <Badge className="text-xs bg-accent text-accent-foreground">PREMIUM</Badge>
-                              </span>
-                              <span className="font-[family-name:var(--font-bebas)] text-3xl text-foreground">
-                                {item.triple.price}
-                              </span>
-                            </div>
-                            <Button
-                              onClick={() => addToCart(item.name, "Triple", item.triple.price)}
-                              className="gap-2 btn-premium bg-accent text-accent-foreground hover:bg-accent/90"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Agregar
-                            </Button>
-                          </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{item.triple.description}</p>
-                        </div>
-                      </div>
-                    </div>
+                    </motion.div>
+                    {/* Badge flotante */}
+                    <Badge className="absolute -bottom-3 left-4 bg-primary text-white text-sm px-4 py-1.5 font-[family-name:var(--font-bebas)] tracking-wider shadow-lg">
+                      {item.name}
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
+
+                  <CardContent className="pt-8 pb-6 px-6">
+                    {/* Título */}
+                    <h3 className="font-[family-name:var(--font-bebas)] text-3xl text-foreground tracking-wide mb-4">
+                      {item.name}
+                    </h3>
+
+                    {/* Opciones de tamaño */}
+                    <div className="space-y-3">
+                      {/* Simple */}
+                      <motion.div
+                        className="flex items-center justify-between bg-muted/50 rounded-xl p-3 hover:bg-muted transition-colors"
+                        whileHover={{ x: 5 }}
+                      >
+                        <div>
+                          <span className="text-foreground font-medium">Simple</span>
+                          <span className="font-[family-name:var(--font-bebas)] text-2xl text-primary ml-3">
+                            {item.simple.price}
+                          </span>
+                        </div>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button
+                            size="sm"
+                            onClick={() => addToCart(item.name, "Simple", item.simple.price, item.image)}
+                            className="bg-primary hover:bg-primary/90 text-white rounded-full h-10 w-10 p-0 shadow-lg"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </Button>
+                        </motion.div>
+                      </motion.div>
+
+                      {/* Doble */}
+                      <motion.div
+                        className="flex items-center justify-between bg-muted/50 rounded-xl p-3 hover:bg-muted transition-colors border-l-4 border-primary"
+                        whileHover={{ x: 5 }}
+                      >
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-foreground font-medium">Doble</span>
+                          <Badge className="bg-primary/10 text-primary text-xs border border-primary/20">+CARNE</Badge>
+                          <span className="font-[family-name:var(--font-bebas)] text-2xl text-primary">
+                            {item.doble.price}
+                          </span>
+                        </div>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button
+                            size="sm"
+                            onClick={() => addToCart(item.name, "Doble", item.doble.price, item.image)}
+                            className="bg-primary hover:bg-primary/90 text-white rounded-full h-10 w-10 p-0 shadow-lg"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </Button>
+                        </motion.div>
+                      </motion.div>
+
+                      {/* Triple */}
+                      <motion.div
+                        className="flex items-center justify-between bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-3 hover:from-primary/20 hover:to-primary/10 transition-colors border-l-4 border-primary"
+                        whileHover={{ x: 5 }}
+                      >
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-foreground font-medium">Triple</span>
+                          <Badge className="bg-primary text-white text-xs">⭐ PREMIUM</Badge>
+                          <span className="font-[family-name:var(--font-bebas)] text-2xl text-primary">
+                            {item.triple.price}
+                          </span>
+                        </div>
+                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Button
+                            size="sm"
+                            onClick={() => addToCart(item.name, "Triple", item.triple.price, item.image)}
+                            className="bg-primary hover:bg-primary/90 text-white rounded-full h-10 w-10 p-0 shadow-lg"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </Button>
+                        </motion.div>
+                      </motion.div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Combos */}
-      <section className="py-20 bg-gradient-to-b from-secondary/20 to-background">
+      <section className="py-20 bg-gradient-to-b from-primary/5 to-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             <h2 className="font-[family-name:var(--font-bebas)] text-5xl md:text-7xl text-primary decorative-line pb-4 inline-block">
               Combos 🔥
             </h2>
             <p className="text-muted-foreground mt-6 text-lg">Para compartir o para vos solo 😋</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {combos.map((combo, index) => (
-              <Card
-                key={index}
-                className="combo-card shine-effect overflow-hidden border-2 border-secondary hover:border-primary bg-card shadow-lg rounded-2xl"
+          </motion.div>
+
+          {/* Layout: Imagen izquierda, combos derecha */}
+          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto items-center">
+            {/* Imagen del combo */}
+            <motion.div
+              className="relative"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <motion.div
+                className="relative overflow-hidden rounded-3xl shadow-2xl"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
               >
-                <CardContent className="p-6 text-center space-y-4">
-                  <div className="text-5xl emoji-beat cursor-default">🍔🍔</div>
-                  <h3 className="font-[family-name:var(--font-bebas)] text-3xl text-primary">{combo.name}</h3>
-                  <p className="text-muted-foreground text-sm">{combo.description}</p>
-                  <p className="font-[family-name:var(--font-bebas)] text-4xl text-foreground">{combo.price}</p>
-                  <Button
-                    onClick={() => addToCart(combo.name, "Combo", combo.price)}
-                    className="w-full gap-2 btn-premium btn-shake"
-                    size="lg"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Agregar combo
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                <img
+                  src="https://i.imgur.com/QIOjTAx.jpeg"
+                  alt="Combos Doña Rib Burger"
+                  loading="lazy"
+                  className="w-full h-80 lg:h-[500px] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                <motion.div
+                  className="absolute bottom-6 left-6 right-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Badge className="bg-primary text-white text-lg px-4 py-2 font-[family-name:var(--font-bebas)] tracking-wider">
+                    ¡OFERTA ESPECIAL!
+                  </Badge>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+
+            {/* Lista de combos */}
+            <div className="space-y-4">
+              {combos.map((combo, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.15, duration: 0.5 }}
+                >
+                  <motion.div whileHover={{ scale: 1.02, x: 10 }} transition={{ duration: 0.2 }}>
+                    <Card className="overflow-hidden border-0 bg-white shadow-lg rounded-2xl hover:shadow-xl transition-shadow">
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <h3 className="font-[family-name:var(--font-bebas)] text-2xl text-primary">{combo.name}</h3>
+                            <p className="text-muted-foreground text-sm">{combo.description}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-[family-name:var(--font-bebas)] text-3xl text-foreground">{combo.price}</p>
+                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                              <Button
+                                onClick={() => addToCart(combo.name, "Combo", combo.price, "https://i.imgur.com/QIOjTAx.jpeg")}
+                                className="mt-2 gap-2 bg-primary hover:bg-primary/90"
+                                size="sm"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Agregar
+                              </Button>
+                            </motion.div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -635,31 +843,61 @@ export default function HomePage() {
       {/* Bebidas */}
       <section className="py-20 bg-muted/30" id="bebidas">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             <h2 className="font-[family-name:var(--font-bebas)] text-5xl md:text-6xl text-primary decorative-line pb-4 inline-block">
               Bebidas
             </h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-5xl mx-auto">
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-6xl mx-auto pt-8">
             {drinks.map((drink, index) => (
-              <Card
+              <motion.div
                 key={index}
-                className="drink-card shine-effect text-center border-2 border-border/50 hover:border-primary/50 bg-card group rounded-xl"
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.08, duration: 0.4 }}
               >
-                <CardContent className="p-4 space-y-2">
-                  <div className="text-4xl mb-2 group-hover:scale-125 transition-transform duration-300 cursor-default emoji-beat">{drink.emoji}</div>
-                  <p className="font-medium text-foreground text-sm leading-tight">{drink.name}</p>
-                  <p className="font-[family-name:var(--font-bebas)] text-2xl text-primary">{drink.price}</p>
-                  <Button
-                    size="sm"
-                    onClick={() => addToCart(drink.name, "Bebida", drink.price)}
-                    className="w-full mt-2 gap-1 btn-shake"
-                  >
-                    <Plus className="w-3 h-3" />
-                    Agregar
-                  </Button>
-                </CardContent>
-              </Card>
+                <motion.div whileHover={{ y: -10 }} transition={{ duration: 0.2 }}>
+                  <Card className="overflow-visible border-0 bg-white shadow-xl rounded-2xl group relative text-center h-full">
+                    {/* Imagen flotante */}
+                    <div className="relative -mt-8 mx-2">
+                      <motion.div
+                        className="h-28 w-28 mx-auto bg-gradient-to-br from-primary/10 to-primary/5 rounded-full shadow-lg overflow-hidden p-3"
+                        whileHover={{ scale: 1.15, rotate: 5 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <img
+                          src={drink.image}
+                          alt={drink.name}
+                          loading="lazy"
+                          className="w-full h-full object-contain"
+                        />
+                      </motion.div>
+                    </div>
+
+                    <CardContent className="pt-4 pb-4 px-3">
+                      <p className="font-medium text-foreground text-sm leading-tight mb-1">{drink.name}</p>
+                      <p className="font-[family-name:var(--font-bebas)] text-2xl text-primary">{drink.price}</p>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          size="sm"
+                          onClick={() => addToCart(drink.name, "Bebida", drink.price, drink.image)}
+                          className="w-full mt-3 gap-1 bg-primary hover:bg-primary/90 rounded-full"
+                        >
+                          <Plus className="w-3 h-3" />
+                          Agregar
+                        </Button>
+                      </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -670,43 +908,79 @@ export default function HomePage() {
         <div className="absolute inset-0 checkerboard-pattern opacity-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         <div className="container mx-auto px-4 text-center relative z-10">
-          <div className="text-7xl mb-6 animate-bounce-subtle cursor-default">🍔</div>
-          <h2 className="font-[family-name:var(--font-bebas)] text-4xl md:text-6xl mb-6 text-balance drop-shadow-lg">
+          <motion.div
+            className="text-7xl mb-6 cursor-default"
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 200, damping: 10 }}
+          >
+            <motion.span
+              className="inline-block"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              🍔
+            </motion.span>
+          </motion.div>
+          <motion.h2
+            className="font-[family-name:var(--font-bebas)] text-4xl md:text-6xl mb-6 text-balance drop-shadow-lg"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
             ¿Tenés hambre?
-          </h2>
-          <p className="text-lg md:text-xl mb-10 opacity-90 text-pretty max-w-xl mx-auto">
+          </motion.h2>
+          <motion.p
+            className="text-lg md:text-xl mb-10 opacity-90 text-pretty max-w-xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          >
             Hacé tu pedido por WhatsApp y lo preparamos al instante.
             ¡Te esperamos!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              variant="secondary"
-              className="font-[family-name:var(--font-bebas)] text-xl tracking-wide shadow-xl hover:shadow-2xl hover:scale-105 transition-all"
-              asChild
-            >
-              <a href="https://wa.me/5493795312150" className="gap-2">
-                <Phone className="w-5 h-5" />
-                Pedir por WhatsApp
-              </a>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="font-[family-name:var(--font-bebas)] text-xl tracking-wide bg-white/10 text-primary-foreground hover:bg-white/20 border-2 border-white/30 backdrop-blur-sm"
-              asChild
-            >
-              <a href="https://www.instagram.com/donaribburger/" target="_blank" rel="noopener noreferrer" className="gap-2">
-                <Instagram className="w-5 h-5" />
-                Seguinos
-              </a>
-            </Button>
-          </div>
+          </motion.p>
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="font-[family-name:var(--font-bebas)] text-xl tracking-wide shadow-xl hover:shadow-2xl transition-all w-full sm:w-auto"
+                asChild
+              >
+                <a href="https://wa.me/5493795312150" className="gap-2">
+                  <Phone className="w-5 h-5" />
+                  Pedir por WhatsApp
+                </a>
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="font-[family-name:var(--font-bebas)] text-xl tracking-wide bg-white/10 text-primary-foreground hover:bg-white/20 border-2 border-white/30 backdrop-blur-sm w-full sm:w-auto"
+                asChild
+              >
+                <a href="https://www.instagram.com/donaribburger/" target="_blank" rel="noopener noreferrer" className="gap-2">
+                  <Instagram className="w-5 h-5" />
+                  Seguinos
+                </a>
+              </Button>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-foreground text-background py-12">
+      <footer className="bg-primary text-white py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center gap-6">
             <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-secondary">
