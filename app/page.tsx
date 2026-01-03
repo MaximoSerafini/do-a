@@ -975,49 +975,86 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-primary text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center gap-6">
-            <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-secondary">
-              <Image
-                src="/logo.jpeg"
-                alt="Doña Rib Burger"
-                width={80}
-                height={80}
-                className="object-cover"
-              />
+      <footer className="bg-primary text-white">
+        {/* Map Section */}
+        <div className="container mx-auto px-4 pt-8">
+          <div className="w-full h-40 sm:h-48 relative rounded-2xl overflow-hidden shadow-lg">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3540.5!2d-58.8347!3d-27.4679!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94450cf0c0000001%3A0x0!2sLavalle%2038%2C%20Corrientes!5e0!3m2!1ses!2sar!4v1704000000000"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="grayscale hover:grayscale-0 transition-all duration-500"
+            />
+            <div className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-medium">
+                <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span>Lavalle 38 - Corrientes</span>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="font-[family-name:var(--font-bebas)] text-3xl mb-1">Doña Rib Burger</div>
-              <p className="text-sm opacity-70">Hamburguesas Gourmet</p>
+          </div>
+        </div>
+
+        {/* Footer Content */}
+        <div className="container mx-auto px-4 py-8">
+          {/* Main footer content */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            {/* Left side - Logo and name */}
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-white/30 flex-shrink-0">
+                <Image
+                  src="/logo.jpeg"
+                  alt="Doña Rib Burger"
+                  width={64}
+                  height={64}
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <div className="font-[family-name:var(--font-bebas)] text-2xl">Doña Rib Burger</div>
+                <p className="text-sm opacity-70">Hamburguesas Gourmet</p>
+              </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-6 text-sm opacity-80">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
+
+            {/* Right side - Contact info */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin className="w-4 h-4 opacity-70" />
+                <span>Lavalle 38, Corrientes</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="w-4 h-4 opacity-70" />
                 <span>19:45 - 23:59</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-sm">
+                <Phone className="w-4 h-4 opacity-70" />
                 <span>+54 9 3795 31-2150</span>
               </div>
+              <div className="flex gap-3">
+                <a
+                  href="https://www.instagram.com/donaribburger/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://wa.me/5493795312150"
+                  className="p-2.5 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                >
+                  <Phone className="w-5 h-5" />
+                </a>
+              </div>
             </div>
-            <div className="flex gap-4 mt-2">
-              <a
-                href="https://www.instagram.com/donaribburger/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="https://wa.me/5493795312150"
-                className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
-              >
-                <Phone className="w-5 h-5" />
-              </a>
-            </div>
-            <p className="text-xs opacity-50 mt-4">© 2025 Doña Rib Burger. Todos los derechos reservados.</p>
+          </div>
+
+          {/* Copyright */}
+          <div className="mt-6 pt-6 border-t border-white/10 text-center md:text-left">
+            <p className="text-xs opacity-50">© 2025 Doña Rib Burger. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
