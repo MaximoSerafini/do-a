@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import { supabase } from "@/lib/supabase"
 
 type CartItem = {
   id: string
@@ -26,6 +27,7 @@ export default function HomePage() {
   const [cartBounce, setCartBounce] = useState(false)
   const [deliveryOption, setDeliveryOption] = useState<"pickup" | "delivery">("pickup")
   const [deliveryAddress, setDeliveryAddress] = useState("")
+  const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "transferencia">("efectivo")
 
   const menuItems = [
     {
@@ -191,11 +193,32 @@ export default function HomePage() {
 
   const total = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart])
 
-  const sendWhatsAppOrder = () => {
+  const sendWhatsAppOrder = async () => {
     if (cart.length === 0) return
     if (deliveryOption === "delivery" && !deliveryAddress.trim()) {
       alert("Por favor ingresá tu dirección para el envío")
       return
+    }
+
+    // Register order in Supabase
+    try {
+      const orderItems = cart.map(item => ({
+        name: item.name,
+        size: item.size,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.image
+      }))
+
+      await supabase.from('orders').insert([{
+        items: orderItems,
+        total: total,
+        delivery_type: deliveryOption,
+        payment_method: paymentMethod,
+        address: deliveryOption === 'delivery' ? deliveryAddress : null
+      }])
+    } catch (error) {
+      console.error('Error registering order:', error)
     }
 
     let message = "🍔 *Nuevo Pedido - Doña Rib Burger*\n\n"
@@ -205,10 +228,12 @@ export default function HomePage() {
     message += `\n💰 *Total: $${total}*\n\n`
 
     if (deliveryOption === "pickup") {
-      message += "📍 *Retiro en local*"
+      message += "📍 *Retiro en local*\n"
     } else {
-      message += `🚚 *Envío a domicilio*\n📍 Dirección: ${deliveryAddress}`
+      message += `🚚 *Envío a domicilio*\n📍 Dirección: ${deliveryAddress}\n`
     }
+
+    message += `\n💳 *Pago: ${paymentMethod === "efectivo" ? "Efectivo 💵" : "Transferencia 🏦"}*`
 
     const whatsappUrl = `https://wa.me/5493795312150?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
@@ -216,6 +241,7 @@ export default function HomePage() {
     setIsCartOpen(false)
     setDeliveryAddress("")
     setDeliveryOption("pickup")
+    setPaymentMethod("efectivo")
   }
 
   return (
@@ -426,7 +452,32 @@ export default function HomePage() {
                     </AnimatePresence>
                   </div>
 
-                  {/* Total */}
+                  {/* Método de pago */}
+                  <div className="space-y-3">
+                    <p className="font-semibold text-sm text-foreground">¿Cómo pagás?</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        className={`flex items-center justify-center gap-2 h-12 rounded-xl font-medium transition-all ${paymentMethod === "efectivo"
+                          ? "bg-primary text-white shadow-lg"
+                          : "bg-muted text-foreground hover:bg-muted/80"
+                          }`}
+                        onClick={() => setPaymentMethod("efectivo")}
+                      >
+                        💵 Efectivo
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        className={`flex items-center justify-center gap-2 h-12 rounded-xl font-medium transition-all ${paymentMethod === "transferencia"
+                          ? "bg-primary text-white shadow-lg"
+                          : "bg-muted text-foreground hover:bg-muted/80"
+                          }`}
+                        onClick={() => setPaymentMethod("transferencia")}
+                      >
+                        🏦 Transferencia
+                      </motion.button>
+                    </div>
+                  </div>
                   <div className="flex justify-between items-center bg-primary/5 rounded-2xl p-4 border border-primary/20">
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wider">Total</p>
