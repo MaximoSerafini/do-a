@@ -20,10 +20,18 @@ export default function AdminDashboard() {
     const [pendingOrders, setPendingOrders] = useState<Order[]>([])
     const [recentOrders, setRecentOrders] = useState<Order[]>([])
     const [loading, setLoading] = useState(true)
+    const [ordersLimit, setOrdersLimit] = useState(10)
 
     useEffect(() => {
         loadStats()
-    }, [])
+
+        // Auto-refresh cada 30 segundos
+        const interval = setInterval(() => {
+            loadStats()
+        }, 30000)
+
+        return () => clearInterval(interval)
+    }, [ordersLimit])
 
     const loadStats = async () => {
         try {
@@ -61,7 +69,7 @@ export default function AdminDashboard() {
                 .select('*')
                 .eq('status', 'confirmed')
                 .order('created_at', { ascending: false })
-                .limit(10)
+                .limit(ordersLimit)
 
             // Calculate stats from CONFIRMED orders only
             let burgers = 0, combos = 0, drinks = 0
@@ -275,8 +283,22 @@ export default function AdminDashboard() {
 
             {/* Recent Confirmed Orders */}
             <Card className="border-0 shadow-lg">
-                <CardHeader>
-                    <CardTitle className="font-[family-name:var(--font-bebas)] text-xl sm:text-2xl">Últimos Pedidos Confirmados</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="font-[family-name:var(--font-bebas)] text-xl sm:text-2xl">Pedidos Confirmados</CardTitle>
+                    <div className="flex gap-1">
+                        {[10, 25, 50].map((num) => (
+                            <button
+                                key={num}
+                                onClick={() => setOrdersLimit(num)}
+                                className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${ordersLimit === num
+                                    ? 'bg-primary text-white'
+                                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                    }`}
+                            >
+                                {num}
+                            </button>
+                        ))}
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {recentOrders.length === 0 ? (
@@ -284,19 +306,38 @@ export default function AdminDashboard() {
                     ) : (
                         <div className="space-y-3">
                             {recentOrders.map((order) => (
-                                <div key={order.id} className="flex items-center justify-between p-3 sm:p-4 bg-muted/30 rounded-xl">
-                                    <div>
-                                        <p className="font-medium text-sm sm:text-base">{order.items?.length || 0} productos</p>
-                                        <p className="text-xs sm:text-sm text-muted-foreground">
-                                            {new Date(order.created_at).toLocaleString('es-AR')}
-                                        </p>
+                                <div key={order.id} className="p-4 bg-muted/30 rounded-xl space-y-2">
+                                    {/* Header con nombre y fecha */}
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            {order.address && (
+                                                <span className="font-bold text-foreground">
+                                                    👤 {order.delivery_type === 'pickup' ? order.address : order.address.split(' - ')[0]}
+                                                </span>
+                                            )}
+                                            <span className="text-xs text-muted-foreground">
+                                                {new Date(order.created_at).toLocaleString('es-AR')}
+                                            </span>
+                                        </div>
+                                        <span className="font-bold text-primary text-lg">{formatPrice(order.total)}</span>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-bold text-primary text-sm sm:text-base">{formatPrice(order.total)}</p>
-                                        <p className="text-xs sm:text-sm text-muted-foreground">
-                                            {order.delivery_type === 'pickup' ? '📍' : '🚚'}
-                                            {order.payment_method === 'efectivo' ? ' 💵' : ' 🏦'}
-                                        </p>
+
+                                    {/* Productos */}
+                                    <div className="text-sm text-muted-foreground space-y-0.5">
+                                        {order.items?.map((item, i) => (
+                                            <span key={i} className="block">
+                                                • {item.quantity}x {item.name} {item.size}
+                                            </span>
+                                        ))}
+                                    </div>
+
+                                    {/* Footer con tipo de entrega y pago */}
+                                    <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1 border-t border-muted">
+                                        <span>{order.delivery_type === 'pickup' ? '📍 Retiro' : '🚚 Envío'}</span>
+                                        <span>{order.payment_method === 'efectivo' ? '💵 Efectivo' : '🏦 Transferencia'}</span>
+                                        {order.delivery_type === 'delivery' && order.address && (
+                                            <span className="text-foreground">📌 {order.address.includes(' - ') ? order.address.split(' - ')[1] : order.address}</span>
+                                        )}
                                     </div>
                                 </div>
                             ))}
