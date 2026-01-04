@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, Utensils, Package, ArrowLeft, Menu, X, Lock } from "lucide-react"
+import { LayoutDashboard, Utensils, Package, ArrowLeft, Menu, X, Lock, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -45,6 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     const navItems = [
         { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/admin/pedidos", label: "Mostrador", icon: ShoppingBag },
         { href: "/admin/menu", label: "Menú", icon: Utensils },
         { href: "/admin/stock", label: "Stock", icon: Package },
     ]
@@ -142,8 +143,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 href={item.href}
                                 onClick={() => setIsSidebarOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
-                                        ? "bg-primary text-white shadow-lg"
-                                        : "hover:bg-muted text-foreground"
+                                    ? "bg-primary text-white shadow-lg"
+                                    : "hover:bg-muted text-foreground"
                                     }`}
                             >
                                 <Icon className="w-5 h-5" />
