@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { supabase, Product } from "@/lib/supabase"
-import { Plus, Minus, ShoppingBag, Check, Trash2, Sparkles } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Plus, Minus, ShoppingBag, Check, Trash2, User } from "lucide-react"
 
 interface CartItem {
     id: string
@@ -23,6 +24,7 @@ export default function PedidosMostrador() {
     const [saving, setSaving] = useState(false)
     const [activeTab, setActiveTab] = useState<'burger' | 'combo' | 'drink'>('burger')
     const [successMessage, setSuccessMessage] = useState(false)
+    const [customerName, setCustomerName] = useState('')
 
     useEffect(() => {
         loadProducts()
@@ -102,7 +104,7 @@ export default function PedidosMostrador() {
                 total: total,
                 delivery_type: 'pickup',
                 payment_method: 'efectivo',
-                address: null,
+                address: customerName || null,
                 status: 'confirmed'
             }])
 
@@ -110,6 +112,7 @@ export default function PedidosMostrador() {
 
             setSuccessMessage(true)
             setCart([])
+            setCustomerName('')
             setTimeout(() => setSuccessMessage(false), 3000)
         } catch (error) {
             console.error('Error saving order:', error)
@@ -327,6 +330,17 @@ export default function PedidosMostrador() {
                                     </div>
 
                                     <div className="border-t pt-4 space-y-4">
+                                        {/* Customer Name */}
+                                        <div className="relative">
+                                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                            <Input
+                                                value={customerName}
+                                                onChange={(e) => setCustomerName(e.target.value)}
+                                                placeholder="Nombre del cliente"
+                                                className="pl-10"
+                                            />
+                                        </div>
+
                                         {/* Total */}
                                         <div className="bg-primary/5 rounded-2xl p-4">
                                             <div className="flex justify-between items-center">

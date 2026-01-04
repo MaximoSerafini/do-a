@@ -28,6 +28,7 @@ export default function HomePage() {
   const [deliveryOption, setDeliveryOption] = useState<"pickup" | "delivery">("pickup")
   const [deliveryAddress, setDeliveryAddress] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "transferencia">("efectivo")
+  const [customerName, setCustomerName] = useState("")
 
   // Products from Supabase
   const [menuItems, setMenuItems] = useState<any[]>([])
@@ -143,7 +144,29 @@ export default function HomePage() {
       return
     }
 
-    // Register order in Supabase
+    // Build WhatsApp message first
+    let message = "🍔 *Nuevo Pedido - Doña Rib Burger*\n\n"
+    if (customerName.trim()) {
+      message += `👤 *Cliente: ${customerName}*\n\n`
+    }
+    cart.forEach((item) => {
+      message += `• ${item.quantity}x ${item.name} ${item.size} - $${item.price * item.quantity}\n`
+    })
+    message += `\n💰 *Total: $${total}*\n\n`
+
+    if (deliveryOption === "pickup") {
+      message += "📍 *Retiro en local*\n"
+    } else {
+      message += `🚚 *Envío a domicilio*\n📍 Dirección: ${deliveryAddress}\n`
+    }
+
+    message += `\n💳 *Pago: ${paymentMethod === "efectivo" ? "Efectivo 💵" : "Transferencia 🏦"}*`
+
+    // Open WhatsApp
+    const whatsappUrl = `https://wa.me/5493795312150?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, "_blank")
+
+    // Register order in Supabase (don't block if it fails)
     try {
       const orderItems = cart.map(item => ({
         name: item.name,
@@ -165,27 +188,13 @@ export default function HomePage() {
       console.error('Error registering order:', error)
     }
 
-    let message = "🍔 *Nuevo Pedido - Doña Rib Burger*\n\n"
-    cart.forEach((item) => {
-      message += `• ${item.quantity}x ${item.name} ${item.size} - $${item.price * item.quantity}\n`
-    })
-    message += `\n💰 *Total: $${total}*\n\n`
-
-    if (deliveryOption === "pickup") {
-      message += "📍 *Retiro en local*\n"
-    } else {
-      message += `🚚 *Envío a domicilio*\n📍 Dirección: ${deliveryAddress}\n`
-    }
-
-    message += `\n💳 *Pago: ${paymentMethod === "efectivo" ? "Efectivo 💵" : "Transferencia 🏦"}*`
-
-    const whatsappUrl = `https://wa.me/5493795312150?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, "_blank")
+    // Reset cart
     setCart([])
     setIsCartOpen(false)
     setDeliveryAddress("")
     setDeliveryOption("pickup")
     setPaymentMethod("efectivo")
+    setCustomerName("")
   }
 
   return (
@@ -347,106 +356,102 @@ export default function HomePage() {
                 </div>
 
                 {/* Sección FIJA al fondo */}
-                <div className="flex-shrink-0 border-t bg-gradient-to-t from-muted/30 to-white px-4 py-4 space-y-4">
-                  {/* Opciones de entrega */}
-                  <div className="space-y-3">
-                    <p className="font-semibold text-sm text-foreground">¿Cómo lo querés?</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <motion.button
-                        whileTap={{ scale: 0.98 }}
-                        className={`flex items-center justify-center gap-2 h-12 rounded-xl font-medium transition-all ${deliveryOption === "pickup"
-                          ? "bg-primary text-white shadow-lg"
-                          : "bg-muted text-foreground hover:bg-muted/80"
-                          }`}
-                        onClick={() => setDeliveryOption("pickup")}
-                      >
-                        <Home className="w-4 h-4" />
-                        Retiro
-                      </motion.button>
-                      <motion.button
-                        whileTap={{ scale: 0.98 }}
-                        className={`flex items-center justify-center gap-2 h-12 rounded-xl font-medium transition-all ${deliveryOption === "delivery"
-                          ? "bg-primary text-white shadow-lg"
-                          : "bg-muted text-foreground hover:bg-muted/80"
-                          }`}
-                        onClick={() => setDeliveryOption("delivery")}
-                      >
-                        <Truck className="w-4 h-4" />
-                        Envío
-                      </motion.button>
-                    </div>
+                <div className="flex-shrink-0 border-t bg-gradient-to-t from-muted/30 to-white px-4 py-3 space-y-3">
+                  {/* Nombre del cliente */}
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-sm text-foreground whitespace-nowrap">Tu nombre:</p>
+                    <Input
+                      placeholder="Ej: Juan"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      className="h-9 rounded-lg border-primary/30 focus:border-primary"
+                    />
+                  </div>
 
-                    <AnimatePresence>
-                      {deliveryOption === "delivery" && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="space-y-2 overflow-hidden"
+                  {/* Opciones de entrega y pago en una fila */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <p className="font-medium text-xs text-muted-foreground">Entrega</p>
+                      <div className="grid grid-cols-2 gap-1">
+                        <button
+                          className={`flex items-center justify-center gap-1 h-9 rounded-lg text-sm font-medium transition-all ${deliveryOption === "pickup"
+                            ? "bg-primary text-white"
+                            : "bg-muted text-foreground"
+                            }`}
+                          onClick={() => setDeliveryOption("pickup")}
                         >
-                          <Input
-                            placeholder="Dirección de envío..."
-                            value={deliveryAddress}
-                            onChange={(e) => setDeliveryAddress(e.target.value)}
-                            className="h-12 rounded-xl border-primary/30 focus:border-primary"
-                          />
-                          <p className="text-xs text-muted-foreground">* Costo de envío a coordinar</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* Método de pago */}
-                  <div className="space-y-3">
-                    <p className="font-semibold text-sm text-foreground">¿Cómo pagás?</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <motion.button
-                        whileTap={{ scale: 0.98 }}
-                        className={`flex items-center justify-center gap-2 h-12 rounded-xl font-medium transition-all ${paymentMethod === "efectivo"
-                          ? "bg-primary text-white shadow-lg"
-                          : "bg-muted text-foreground hover:bg-muted/80"
-                          }`}
-                        onClick={() => setPaymentMethod("efectivo")}
-                      >
-                        💵 Efectivo
-                      </motion.button>
-                      <motion.button
-                        whileTap={{ scale: 0.98 }}
-                        className={`flex items-center justify-center gap-2 h-12 rounded-xl font-medium transition-all ${paymentMethod === "transferencia"
-                          ? "bg-primary text-white shadow-lg"
-                          : "bg-muted text-foreground hover:bg-muted/80"
-                          }`}
-                        onClick={() => setPaymentMethod("transferencia")}
-                      >
-                        🏦 Transferencia
-                      </motion.button>
+                          <Home className="w-3 h-3" />
+                          Retiro
+                        </button>
+                        <button
+                          className={`flex items-center justify-center gap-1 h-9 rounded-lg text-sm font-medium transition-all ${deliveryOption === "delivery"
+                            ? "bg-primary text-white"
+                            : "bg-muted text-foreground"
+                            }`}
+                          onClick={() => setDeliveryOption("delivery")}
+                        >
+                          <Truck className="w-3 h-3" />
+                          Envío
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex justify-between items-center bg-primary/5 rounded-2xl p-4 border border-primary/20">
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Total</p>
-                      <p className="font-[family-name:var(--font-bebas)] text-4xl text-primary">${total}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground">Tiempo estimado</p>
-                      <p className="text-sm font-medium flex items-center gap-1">
-                        <Clock className="w-4 h-4 text-primary" />
-                        30-45 min
-                      </p>
+                    <div className="space-y-1">
+                      <p className="font-medium text-xs text-muted-foreground">Pago</p>
+                      <div className="grid grid-cols-2 gap-1">
+                        <button
+                          className={`flex items-center justify-center gap-1 h-9 rounded-lg text-sm font-medium transition-all ${paymentMethod === "efectivo"
+                            ? "bg-primary text-white"
+                            : "bg-muted text-foreground"
+                            }`}
+                          onClick={() => setPaymentMethod("efectivo")}
+                        >
+                          💵
+                        </button>
+                        <button
+                          className={`flex items-center justify-center gap-1 h-9 rounded-lg text-sm font-medium transition-all ${paymentMethod === "transferencia"
+                            ? "bg-primary text-white"
+                            : "bg-muted text-foreground"
+                            }`}
+                          onClick={() => setPaymentMethod("transferencia")}
+                        >
+                          🏦
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Botón de pedido */}
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <AnimatePresence>
+                    {deliveryOption === "delivery" && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <Input
+                          placeholder="Dirección de envío..."
+                          value={deliveryAddress}
+                          onChange={(e) => setDeliveryAddress(e.target.value)}
+                          className="h-9 rounded-lg border-primary/30 focus:border-primary"
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Total y botón */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 bg-primary/5 rounded-xl px-3 py-2">
+                      <p className="text-xs text-muted-foreground">Total</p>
+                      <p className="font-[family-name:var(--font-bebas)] text-2xl text-primary">${total}</p>
+                    </div>
                     <Button
                       onClick={sendWhatsAppOrder}
-                      className="w-full h-14 rounded-2xl font-[family-name:var(--font-bebas)] text-xl tracking-wide shadow-lg"
-                      size="lg"
+                      className="h-12 px-6 rounded-xl font-[family-name:var(--font-bebas)] text-lg"
                     >
-                      <Phone className="mr-2 w-5 h-5" />
-                      Hacer pedido
+                      <Phone className="mr-2 w-4 h-4" />
+                      Pedir
                     </Button>
-                  </motion.div>
+                  </div>
                 </div>
               </>
             )}
