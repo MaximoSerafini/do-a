@@ -181,7 +181,9 @@ export default function HomePage() {
         total: total,
         delivery_type: deliveryOption,
         payment_method: paymentMethod,
-        address: deliveryOption === 'delivery' ? deliveryAddress : null,
+        address: deliveryOption === 'delivery'
+          ? `${customerName ? customerName + ' - ' : ''}${deliveryAddress}`
+          : customerName || null,
         status: 'pending'
       }])
     } catch (error) {

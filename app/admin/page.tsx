@@ -145,6 +145,9 @@ export default function AdminDashboard() {
                                 <div className="flex-1">
                                     <div className="flex flex-wrap items-center gap-2 mb-1">
                                         <Badge variant="outline" className="bg-orange-100">Pendiente</Badge>
+                                        {order.address && order.delivery_type === 'pickup' && (
+                                            <Badge className="bg-blue-500">👤 {order.address}</Badge>
+                                        )}
                                         <span className="text-sm text-muted-foreground">
                                             {new Date(order.created_at).toLocaleString('es-AR')}
                                         </span>
