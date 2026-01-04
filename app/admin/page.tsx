@@ -69,7 +69,10 @@ export default function AdminDashboard() {
             const allOrders = weekData || []
             allOrders.forEach((order: Order) => {
                 order.items?.forEach((item) => {
-                    if (item.size === 'Combo') combos += item.quantity
+                    if (item.size === 'Combo') {
+                        combos += item.quantity
+                        burgers += item.quantity * 2 // Cada combo tiene 2 hamburguesas
+                    }
                     else if (item.size === 'Bebida') drinks += item.quantity
                     else burgers += item.quantity
                 })
