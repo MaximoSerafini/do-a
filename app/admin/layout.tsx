@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, Utensils, Package, ArrowLeft, Menu, X, Lock, ShoppingBag } from "lucide-react"
+import { LayoutDashboard, Utensils, Package, ArrowLeft, Menu, X, Lock, ShoppingBag, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -46,6 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const navItems = [
         { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
         { href: "/admin/pedidos", label: "Mostrador", icon: ShoppingBag },
+        { href: "/admin/estadisticas", label: "Estadísticas", icon: BarChart3 },
         { href: "/admin/menu", label: "Menú", icon: Utensils },
         { href: "/admin/stock", label: "Stock", icon: Package },
     ]
