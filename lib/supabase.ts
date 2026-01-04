@@ -34,6 +34,7 @@ export interface Order {
     delivery_type: 'pickup' | 'delivery'
     payment_method: 'efectivo' | 'transferencia'
     address?: string
+    notes?: string
     status: OrderStatus
     created_at: string
 }

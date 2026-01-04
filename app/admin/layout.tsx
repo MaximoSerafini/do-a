@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, Utensils, Package, ArrowLeft, Menu, X, Lock, ShoppingBag, BarChart3 } from "lucide-react"
+import { LayoutDashboard, Utensils, Package, ArrowLeft, Menu, X, Lock, ShoppingBag, BarChart3, Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,12 +17,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [error, setError] = useState("")
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
+    const [darkMode, setDarkMode] = useState(false)
 
     useEffect(() => {
-        // Check if already authenticated
+        // Check if already    useEffect(() => {
         const auth = sessionStorage.getItem("admin_auth")
         if (auth === "true") {
             setIsAuthenticated(true)
+        }
+        // Load dark mode preference
+        const savedDark = localStorage.getItem("admin_dark_mode")
+        if (savedDark === "true") {
+            setDarkMode(true)
+            document.documentElement.classList.add('dark')
         }
         setIsLoading(false)
     }, [])
@@ -99,7 +106,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
         <div className="min-h-screen bg-muted/30">
             {/* Mobile Header */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b shadow-sm z-50 flex items-center justify-between px-4">
+            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-background border-b shadow-sm z-50 flex items-center justify-between px-4">
                 <div className="flex items-center gap-2">
                     <span className="text-2xl">🍔</span>
                     <span className="font-[family-name:var(--font-bebas)] text-xl text-primary">Admin</span>
@@ -123,7 +130,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             {/* Sidebar */}
             <aside className={`
-        fixed top-0 h-full w-64 bg-white border-r shadow-sm z-50 transition-transform duration-300
+        fixed top-0 h-full w-64 bg-background border-r shadow-sm z-50 transition-transform duration-300
         lg:left-0 lg:translate-x-0
         ${isSidebarOpen ? 'left-0 translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
@@ -156,6 +163,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </nav>
 
                 <div className="absolute bottom-0 left-0 right-0 p-4 border-t space-y-2">
+                    <button
+                        onClick={() => {
+                            setDarkMode(!darkMode)
+                            document.documentElement.classList.toggle('dark')
+                            localStorage.setItem("admin_dark_mode", (!darkMode).toString())
+                        }}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted text-foreground transition-all w-full"
+                    >
+                        {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                        <span className="font-medium">{darkMode ? 'Modo claro' : 'Modo oscuro'}</span>
+                    </button>
                     <Link
                         href="/"
                         className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted text-foreground transition-all"
