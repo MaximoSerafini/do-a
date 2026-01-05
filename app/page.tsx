@@ -139,6 +139,10 @@ export default function HomePage() {
 
   const sendWhatsAppOrder = async () => {
     if (cart.length === 0) return
+    if (!customerName.trim()) {
+      alert("Por favor ingresá tu nombre")
+      return
+    }
     if (deliveryOption === "delivery" && !deliveryAddress.trim()) {
       alert("Por favor ingresá tu dirección para el envío")
       return
