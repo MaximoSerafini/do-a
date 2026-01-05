@@ -29,6 +29,7 @@ export default function HomePage() {
   const [deliveryAddress, setDeliveryAddress] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "transferencia">("efectivo")
   const [customerName, setCustomerName] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   // Products from Supabase
   const [menuItems, setMenuItems] = useState<any[]>([])
@@ -140,11 +141,13 @@ export default function HomePage() {
   const sendWhatsAppOrder = async () => {
     if (cart.length === 0) return
     if (!customerName.trim()) {
-      alert("Por favor ingresá tu nombre")
+      setError("Ingresá tu nombre para continuar")
+      setTimeout(() => setError(null), 3000)
       return
     }
     if (deliveryOption === "delivery" && !deliveryAddress.trim()) {
-      alert("Por favor ingresá tu dirección para el envío")
+      setError("Ingresá tu dirección para el envío")
+      setTimeout(() => setError(null), 3000)
       return
     }
 
@@ -363,9 +366,23 @@ export default function HomePage() {
 
                 {/* Sección FIJA al fondo */}
                 <div className="flex-shrink-0 border-t bg-gradient-to-t from-muted/30 to-white px-4 py-3 space-y-3">
+                  {/* Error Toast */}
+                  <AnimatePresence>
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-medium text-center shadow-lg"
+                      >
+                        {error}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   {/* Nombre del cliente */}
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-sm text-foreground whitespace-nowrap">Tu nombre:</p>
+                    <p className="font-medium text-sm text-foreground whitespace-nowrap">Tu nombre: <span className="text-red-500">*</span></p>
                     <Input
                       placeholder="Ej: Juan"
                       value={customerName}
